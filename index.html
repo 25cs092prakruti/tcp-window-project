@@ -18,7 +18,7 @@
   <canvas id="net-bg" aria-hidden="true"></canvas>
   <div class="wrap">
     <h1>TCP Receiver Window Bottleneck Experiment</h1>
-    <p class="lead">How does the size of a receiver's buffer relate to the throughput TCP can reach? This site explains the theory, simulates the idea, and presents the measurements from my experiment.</p>
+    <p class="lead">How does the size of a receiver's buffer relate to the throughput TCP can reach? This site explains the theory, simulates the idea, and presents the measurements from this experiment.</p>
     <div class="grid2">
       <div class="panel"><h3>Objective</h3><p>Compare TCP throughput between PC1 (sender) and PC2 (receiver) when the receiver uses a small buffer and a large buffer, and inspect the advertised window and zero-window events in Wireshark.</p></div>
       <div class="panel"><h3>Problem statement</h3><p>TCP flow control lets a receiver slow a sender down. If the receiver's buffer is small, the advertised window can shrink to zero and stall the transfer. How much does this limit throughput?</p></div>
@@ -32,7 +32,7 @@
 </header>
 
 <section id="theory"><div class="wrap">
-  <h2>TCP theory in plain language</h2>
+  <h2>TCP theory </h2>
   <div class="grid3">
     <article class="panel"><h3>TCP</h3><p>A reliable, ordered byte-stream protocol. It numbers data, retransmits losses, and adapts its sending speed.</p></article>
     <article class="panel"><h3>Flow control</h3><p>Stops a fast sender from overwhelming a slow receiver. The receiver tells the sender how much more data it can accept.</p></article>
@@ -44,7 +44,7 @@
 </div></section>
 
 <section id="sim"><div class="wrap">
-  <h2>Interactive 3D network simulation</h2>
+  <h2>3D network simulation</h2>
   <p class="badge">Conceptual simulation. Not a live packet capture, and not connected to any real network.</p>
   <div class="ctrl">
     <button id="btn-small" class="on">Small buffer</button>
@@ -78,7 +78,7 @@
 </div></section>
 
 <section id="graphs"><div class="wrap">
-  <h2>Interactive graphs</h2>
+  <h2>graphs</h2>
   <p class="badge">Data: my measured experiment results.</p>
   <div class="grid2">
     <figure class="panel"><div id="chart-tp"></div><figcaption>Throughput (Mbps). The large-buffer run measured about 19 times the small-buffer throughput.</figcaption></figure>
@@ -99,8 +99,11 @@
         <li><b>Timing:</b> use <em>Statistics &gt; TCP Stream Graphs &gt; Window Scaling</em> and the Time column to see pauses.</li>
       </ul></div>
     <div class="panel"><h3>My screenshots</h3>
-      <div class="ph">Placeholder: add my Wireshark screenshot of a zero-window event here<br><small>Replace with &lt;img src="images/zero-window.png"&gt;</small></div>
-      <div class="ph">Placeholder: add my Wireshark screenshot of the window-scaling graph here<br><small>Replace with &lt;img src="images/window-graph.png"&gt;</small></div>
+      <div class="ph"><img src="images/large-buffer.png" height="300.px" width="400px
+        "></div>
+      
+      <div class="ph"><img src="images\graph-large.png" height="300.px" width="400px
+        "></div>
     </div>
   </div>
 </div></section>
