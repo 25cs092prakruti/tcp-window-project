@@ -98,11 +98,28 @@
         <li><b>Acknowledgements:</b> filter <code>tcp.flags.ack == 1</code> and follow <em>Ack</em> numbers.</li>
         <li><b>Timing:</b> use <em>Statistics &gt; TCP Stream Graphs &gt; Window Scaling</em> and the Time column to see pauses.</li>
       </ul></div>
-    <div class="panel"><h3>My screenshots</h3>
+    <div class="panel"><h3>My screenshots for large-buffer</h3>
       <div class="ph"><img src="images/large-buffer.png" height="300.px" width="400px
         "></div>
       
       <div class="ph"><img src="images\graph-large.png" height="300.px" width="400px
+        "></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>What to inspect</h3>
+      <ul>
+        <li><b>Advertised window:</b> select a packet from PC2, open <code>Transmission Control Protocol</code>, read <em>Window size value</em> and <em>Calculated window size</em>.</li>
+        <li><b>Zero-window events:</b> use the display filter <code>tcp.analysis.zero_window</code>.</li>
+        <li><b>Window updates:</b> <code>tcp.analysis.window_update</code> shows when PC2 reopens its window.</li>
+        <li><b>Acknowledgements:</b> filter <code>tcp.flags.ack == 1</code> and follow <em>Ack</em> numbers.</li>
+        <li><b>Timing:</b> use <em>Statistics &gt; TCP Stream Graphs &gt; Window Scaling</em> and the Time column to see pauses.</li>
+      </ul></div>
+    <div class="panel"><h3>My screenshots for small-buffer</h3>
+      <div class="ph"><img src="images/small-buffer.png" height="300.px" width="400px
+        "></div>
+      
+      <div class="ph"><img src="images\graph-small.png" height="300.px" width="400px
         "></div>
     </div>
   </div>
