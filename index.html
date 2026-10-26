@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TCP Receiver Window Bottleneck Experiment</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav id="nav">
+  <strong>TCP Window Lab</strong>
+  <div>
+    <a href="#intro">Intro</a><a href="#theory">Theory</a><a href="#sim">Simulation</a><a href="#results">Results</a><a href="#graphs">Graphs</a><a href="#wireshark">Wireshark</a><a href="#tools">Tools</a><a href="#conclusion">Conclusion</a>
+  </div>
+</nav>
+
+<header id="intro" class="hero">
+  <canvas id="net-bg" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <h1>TCP Receiver Window Bottleneck Experiment</h1>
+    <p class="lead">How does the size of a receiver's buffer relate to the throughput TCP can reach? This site explains the theory, simulates the idea, and presents the measurements from my experiment.</p>
+    <div class="grid2">
+      <div class="panel"><h3>Objective</h3><p>Compare TCP throughput between PC1 (sender) and PC2 (receiver) when the receiver uses a small buffer and a large buffer, and inspect the advertised window and zero-window events in Wireshark.</p></div>
+      <div class="panel"><h3>Problem statement</h3><p>TCP flow control lets a receiver slow a sender down. If the receiver's buffer is small, the advertised window can shrink to zero and stall the transfer. How much does this limit throughput?</p></div>
+    </div>
+    <div class="pcs">
+      <div class="pc"><div class="screen">PC1</div><span>Sender (iperf3 client)</span></div>
+      <div class="wire"><i></i><i></i><i></i></div>
+      <div class="pc"><div class="screen">PC2</div><span>Receiver (iperf3 server)</span></div>
+    </div>
+  </div>
+</header>
+
+<section id="theory"><div class="wrap">
+  <h2>TCP theory in plain language</h2>
+  <div class="grid3">
+    <article class="panel"><h3>TCP</h3><p>A reliable, ordered byte-stream protocol. It numbers data, retransmits losses, and adapts its sending speed.</p></article>
+    <article class="panel"><h3>Flow control</h3><p>Stops a fast sender from overwhelming a slow receiver. The receiver tells the sender how much more data it can accept.</p></article>
+    <article class="panel"><h3>Receiver buffer</h3><p>Memory on PC2 where arriving data waits until the application reads it. A bigger buffer can hold more unread data.</p></article>
+    <article class="panel"><h3>Advertised receive window (rwnd)</h3><p>The free buffer space PC2 reports in every ACK. The sender may have at most this much unacknowledged data in flight.</p></article>
+    <article class="panel"><h3>Zero-window event</h3><p>PC2 advertises a window of 0 because its buffer is full. The sender must pause and wait for a window update. Wireshark flags these as <code>TCP ZeroWindow</code>.</p></article>
+    <article class="panel"><h3>Acknowledgements (ACKs)</h3><p>PC2 confirms received data with ACKs, and each ACK carries the current window. Delayed ACKs or window updates let the sender resume.</p></article>
+  </div>
+</div></section>
+
+<section id="sim"><div class="wrap">
+  <h2>Interactive 3D network simulation</h2>
+  <p class="badge">Conceptual simulation. Not a live packet capture, and not connected to any real network.</p>
+  <div class="ctrl">
+    <button id="btn-small" class="on">Small buffer</button>
+    <button id="btn-large">Large buffer</button>
+    <button id="btn-reset">Restart</button>
+  </div>
+  <div class="simbox">
+    <div id="sim3d"></div>
+    <div class="hud">
+      <div>Mode: <b id="h-mode">Small</b></div>
+      <div>Advertised window: <b id="h-win">8</b> / <b id="h-cap">8</b> segments</div>
+      <div class="meter"><i id="h-bar"></i></div>
+      <div>Sender: <b id="h-state" class="ok">Sending</b></div>
+      <div>Simulated zero-window events: <b id="h-zw">0</b></div>
+      <p id="h-msg">Packets flow from PC1 to PC2 and fill the receiver buffer.</p>
+    </div>
+  </div>
+  <p class="note">The application on PC2 drains the buffer at a fixed simulated rate. Event counts here are illustrative and are not my measured data.</p>
+</div></section>
+
+<section id="results"><div class="wrap">
+  <h2>Experimental results</h2>
+  <p class="badge">Values below are measured results from my experiment.</p>
+  <table>
+    <thead><tr><th>Measurement</th><th>Small buffer</th><th>Large buffer</th></tr></thead>
+    <tbody>
+      <tr><td>Throughput</td><td>0.89 Mbps</td><td>17.27 Mbps</td></tr>
+      <tr><td>Zero-window events</td><td>37</td><td>32</td></tr>
+    </tbody>
+  </table>
+</div></section>
+
+<section id="graphs"><div class="wrap">
+  <h2>Interactive graphs</h2>
+  <p class="badge">Data: my measured experiment results.</p>
+  <div class="grid2">
+    <figure class="panel"><div id="chart-tp"></div><figcaption>Throughput (Mbps). The large-buffer run measured about 19 times the small-buffer throughput.</figcaption></figure>
+    <figure class="panel"><div id="chart-zw"></div><figcaption>Zero-window events (count). The two counts are close, so the count alone does not explain the throughput gap.</figcaption></figure>
+  </div>
+  <figure class="panel"><div id="chart3d"></div><figcaption>3D view of throughput (Mbps). Drag to rotate.</figcaption></figure>
+</div></section>
+
+<section id="wireshark"><div class="wrap">
+  <h2>Wireshark analysis</h2>
+  <div class="grid2">
+    <div class="panel"><h3>What to inspect</h3>
+      <ul>
+        <li><b>Advertised window:</b> select a packet from PC2, open <code>Transmission Control Protocol</code>, read <em>Window size value</em> and <em>Calculated window size</em>.</li>
+        <li><b>Zero-window events:</b> use the display filter <code>tcp.analysis.zero_window</code>.</li>
+        <li><b>Window updates:</b> <code>tcp.analysis.window_update</code> shows when PC2 reopens its window.</li>
+        <li><b>Acknowledgements:</b> filter <code>tcp.flags.ack == 1</code> and follow <em>Ack</em> numbers.</li>
+        <li><b>Timing:</b> use <em>Statistics &gt; TCP Stream Graphs &gt; Window Scaling</em> and the Time column to see pauses.</li>
+      </ul></div>
+    <div class="panel"><h3>My screenshots</h3>
+      <div class="ph">Placeholder: add my Wireshark screenshot of a zero-window event here<br><small>Replace with &lt;img src="images/zero-window.png"&gt;</small></div>
+      <div class="ph">Placeholder: add my Wireshark screenshot of the window-scaling graph here<br><small>Replace with &lt;img src="images/window-graph.png"&gt;</small></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="tools"><div class="wrap">
+  <h2>Tools and environment</h2>
+  <div class="grid4">
+    <div class="panel"><h3>Operating system</h3><p>Ubuntu</p></div>
+    <div class="panel"><h3>Python</h3><p>3.12.3</p></div>
+    <div class="panel"><h3>iperf3</h3><p>3.16</p></div>
+    <div class="panel"><h3>Wireshark</h3><p>4.2.2</p></div>
+  </div>
+</div></section>
+
+<section id="conclusion"><div class="wrap">
+  <h2>Conclusion</h2>
+  <div class="panel">
+    <p>In this experiment, the large-buffer run reached a higher measured throughput (17.27 Mbps) than the small-buffer run (0.89 Mbps). Receiver buffer size may influence performance because it limits the advertised window. However, throughput also depends on other factors such as round-trip time, congestion control, link capacity, CPU load, and how fast the application reads data. These results alone do not prove that buffer size is the only cause of the difference.</p>
+  </div>
+</div></section>
+<footer>TCP Receiver Window Bottleneck Experiment | college networking project</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
